@@ -8,14 +8,7 @@ class LikeableServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->offerPublishing();
-    }
-
-    public function offerPublishing(): void
-    {
-        $this->publishes([
-            __DIR__ . '/../database/migrations/create_likeable_tables.php' => $this->getMigrationFileName('create_likeable_tables.php'),
-        ], 'migrations');
+        $this->loadMigrationsFrom(__DIR__."/../database/migrations");
     }
 
     public function getMigrationFileName($migrationFileName): string
