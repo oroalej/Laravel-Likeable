@@ -11,14 +11,16 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
- * @property int $user_id
+ * @property int $userable_id
  * @property int $likeable_id
- * @property string $user_type
+ * @property string $userable_type
  * @property string $likeable_type
- *
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ *
+ * @property MorphTo $likeable
+ * @property MorphTo $userable
  *
  * @mixin Builder
  */
@@ -35,8 +37,8 @@ class Like extends Model
         return $this->morphTo();
     }
 
-    public function user(): BelongsTo
+    public function userable(): BelongsTo
     {
-        return $this->morphTo();
+        return $this->morphTo('userable');
     }
 }

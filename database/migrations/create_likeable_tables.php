@@ -10,12 +10,12 @@ return new class () extends Migration {
         if (! Schema::hasTable('likes')) {
             Schema::create('likes', static function (Blueprint $table) {
                 $table->id();
-                $table->morphs('user');
+                $table->morphs('userable');
                 $table->morphs('likeable');
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['user_type', 'likeable_type', 'likeable_id', 'user_id']);
+                $table->index(['userable_type', 'userable_id', 'likeable_type', 'likeable_id']);
             });
         }
 
@@ -30,11 +30,11 @@ return new class () extends Migration {
         if (! Schema::hasTable('liker_counter')) {
             Schema::create('liker_counter', static function (Blueprint $table) {
                 $table->id();
-                $table->morphs('user');
+                $table->morphs('userable');
                 $table->string('likeable_type');
                 $table->unsignedInteger('count')->default(0);
 
-                $table->index([ 'likeable_type', 'user_type', 'user_id' ]);
+                $table->index([ 'likeable_type', 'userable_type', 'userable_id' ]);
             });
         }
     }

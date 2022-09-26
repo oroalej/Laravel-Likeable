@@ -38,8 +38,8 @@ Class Post extends Model
 ### API
 
 ```php
-$user = User::first();
-$post = Post::first();
+$user = User::find(1);
+$post = Post::find(1);
 
 // Liker
 $user->like($post);
@@ -48,5 +48,19 @@ $user->unlike($post);
 // Likeable
 $post->isLikedBy($user);
 $post->unlikedBy($user);
+```
+
+### Getting Data
+
+```php
+// Liker
+$user = User::find(1);
+$user->liked(Post::class);
+$user->liked();
+
+// Likeable
+$post = Post::find(1);
+$post->likers(User::class);
+$post->likers()
 ```
 

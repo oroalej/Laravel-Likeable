@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * @property int    $id
  * @property int    $count
- * @property int    $user_id
- * @property string $user_type
+ * @property int    $userable_id
+ * @property string $userable_type
  * @property string $likeable_type
  *
  * @mixin Builder
@@ -21,7 +21,7 @@ class LikerCounter extends Model
 {
     protected $table = 'liker_counter';
 
-    protected $fillable = [ 'count', 'likeable_type', 'user_id', 'user_type' ];
+    protected $fillable = [ 'count', 'likeable_type', 'userable_id', 'userable_type' ];
 
     public $timestamps = false;
 
@@ -47,13 +47,13 @@ class LikerCounter extends Model
         }
 
         $data = Like::query()
-            ->selectRaw('count(*) as count, likeable_type, user_type, user_id')
+            ->selectRaw('count(*) as count, likeable_type, userable_type, userable_id')
             ->where('likeable_type', $likeableNamespace)
-            ->where('user_type', $userableNamespace)
+            ->where('userable_type', $userableNamespace)
             ->when($userId, static function (Builder $query) use ($userId) {
-                $query->where('user_id', $userId);
+                $query->where('userable_id', $userId);
             })
-            ->groupBy('user_id')
+            ->groupBy('userable_id')
             ->get()
             ->toArray();
 
@@ -61,7 +61,7 @@ class LikerCounter extends Model
 
         self::query()->insert($data);
 
-        Log::info("LikerCounter Rebuild: Likeable=$likeableNamespace, Rebuilt Count=$rebuiltCount, UserModel=$userableNamespace" . $userId ? ", UserId=$userId.": ".");
+        Log::info("LikerCounter Rebuild: Likeable=$likeableNamespace, Rebuilt Count=$rebuiltCount, UserModel=$userableNamespace" . $userId ? ", UserId=$userId." : ".");
 
         return count($data);
     }

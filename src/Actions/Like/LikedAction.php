@@ -17,10 +17,10 @@ class LikedAction
             $like = Like::withTrashed()
                 ->firstOrCreate(
                     [
-                        'user_type'     => get_class($userable),
+                        'userable_type'     => get_class($userable),
+                        'userable_id'       => $userable->getKey(),
                         'likeable_type' => get_class($likeable),
                         'likeable_id'   => $likeable->getKey(),
-                        'user_id'       => $userable->getKey()
                     ]
                 );
 
