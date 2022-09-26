@@ -6,27 +6,34 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Oroalej\Likeable\Actions\LikeableCounter\IncrementLikeableCountAction;
 use Oroalej\Likeable\Actions\LikerCounter\IncrementLikerCountAction;
-use Oroalej\Likeable\Models\Like;
 
 class LikedAction
 {
     public function execute(Model $likeable, Model $userable): void
     {
-        DB::transaction(static function () use ($likeable, $userable) {
-            /** @var Like $like */
-            $like = Like::withTrashed()
-                ->firstOrCreate(
-                    [
-                        'userable_type'     => get_class($userable),
-                        'userable_id'       => $userable->getKey(),
-                        'likeable_type' => get_class($likeable),
-                        'likeable_id'   => $likeable->getKey(),
-                    ]
-                );
+        if (! method_exists($userable, 'likes') || ! method_exists($likeable, 'likes')) {
+            return;
+        }
 
-            if ($like->deleted_at !== null) {
+        DB::transaction(static function () use ($likeable, $userable) {
+            $like = $userable->likes()
+                ->withTrashed()
+                ->where('likeable_type', $likeable->getMorphClass())
+                ->where('likeable_id', $likeable->getKey())
+                ->first();
+
+            if ($like) {
+                if (! $like->trashed()) {
+                    return;
+                }
+
                 $like->restore();
             }
+
+            $userable->likes()->create([
+                'likeable_type' => $likeable->getMorphClass(),
+                'likeable_id'   => $likeable->getKey(),
+            ]);
 
             ( new IncrementLikeableCountAction() )->execute($likeable);
             ( new IncrementLikerCountAction() )->execute($likeable, $userable);

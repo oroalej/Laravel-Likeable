@@ -25,7 +25,7 @@ class LikerCounter extends Model
 
     public $timestamps = false;
 
-    public function likeable(): MorphTo
+    public function userable(): MorphTo
     {
         return $this->morphTo();
     }

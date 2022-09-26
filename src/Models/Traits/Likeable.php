@@ -27,29 +27,25 @@ trait Likeable
         return $this->morphOne(LikeableCounter::class, 'likeable');
     }
 
-    public function getLikeCount(): int
+    public function getLikesCountAttribute(): int
     {
-        return $this->likeableCounter->count;
+        return $this->likeableCounter->count ?? 0;
     }
 
-    public function isLikedBy(Model $user): void
+    public function isLikedBy(Model $userable): void
     {
-        if (method_exists($user, 'likes')) {
-            (new LikedAction())->execute(
-                likeable: $this,
-                userable: $user
-            );
-        }
+        (new LikedAction())->execute(
+            likeable: $this,
+            userable: $userable
+        );
     }
 
-    public function isUnlikedBy(Model $user): void
+    public function isUnlikedBy(Model $userable): void
     {
-        if (method_exists($user, 'likes')) {
-            (new UnlikedAction())->execute(
-                likeable: $this,
-                userable: $user
-            );
-        }
+        (new UnlikedAction())->execute(
+            likeable: $this,
+            userable: $userable
+        );
     }
 
     public function likers(string $userableNamespace = null): Collection

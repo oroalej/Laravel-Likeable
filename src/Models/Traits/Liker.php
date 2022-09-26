@@ -2,10 +2,8 @@
 
 namespace Oroalej\Likeable\Models\Traits;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Oroalej\Likeable\Actions\Like\LikedAction;
@@ -17,20 +15,19 @@ trait Liker
 {
     public function likes(): MorphMany
     {
-        return $this->morphMany(Like::class, 'user');
+        return $this->morphMany(Like::class, 'userable');
     }
 
-    public function likeCounter(): MorphToMany
+    public function likeCounter(): morphMany
     {
-        return $this->MorphToMany(LikerCounter::class, 'liker');
+        return $this->morphMany(LikerCounter::class, 'userable');
     }
 
-    public function getLikeCounterByType(string $modelNamespace = null)
+    public function getLikeCountByType(string $likeableNamespace): int
     {
         return $this->likeCounter()
-            ->when($modelNamespace, function (Builder $builder) use ($modelNamespace) {
-                $builder->where('likeable_type', $modelNamespace);
-            });
+            ->where('likeable_type', $likeableNamespace)
+            ->value('count');
     }
 
     public function getTotalLikeCount(): int
@@ -41,22 +38,18 @@ trait Liker
 
     public function like(Model $model): void
     {
-        if (method_exists($model, 'likes')) {
-            ( new LikedAction() )->execute(
-                likeable: $model,
-                userable: $this
-            );
-        }
+        ( new LikedAction() )->execute(
+            likeable: $model,
+            userable: $this
+        );
     }
 
     public function unlike(Model $model): void
     {
-        if (method_exists($model, 'likes')) {
-            ( new UnlikedAction() )->execute(
-                likeable: $model,
-                userable: $this
-            );
-        }
+        ( new UnlikedAction() )->execute(
+            likeable: $model,
+            userable: $this
+        );
     }
 
     public function liked(string $modelNamespace = null): Collection
@@ -70,22 +63,23 @@ trait Liker
                 ->map(fn ($like) => $like->likeable);
         }
 
+        $result = Like::with('likeable')
+            ->where('userable_type', get_class($this))
+            ->where('userable_id', $this->getKey())
+            ->get();
+
         return Like::select('likeable_type')
             ->where('userable_type', get_class($this))
             ->where('userable_id', $this->getKey())
             ->groupBy('likeable_type')
             ->pluck('likeable_type')
-            ->map(function (string $likeableType) {
+            ->map(function (string $likeableType) use ($result) {
                 $key = Str::afterLast($likeableType, '\\');
 
-                $result = Like::with('likeable')
-                    ->where('userable_type', get_class($this))
-                    ->where('userable_id', $this->getKey())
-                    ->where('likeable_type', $likeableType)
-                    ->get()
-                    ->map(fn (Like $like) => $like->likeable);
+                $filteredData = $result->where('likeable_type', $likeableType)
+                    ->map(fn(Like $like) => $like->likeable);
 
-                return [$key => $result];
+                return [$key => $filteredData];
             });
     }
 }

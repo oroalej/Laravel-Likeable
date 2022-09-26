@@ -64,3 +64,18 @@ $post->likers(User::class);
 $post->likers()
 ```
 
+### Getting Count
+```php
+// Liker
+$user = User::find(1);
+$user->getLikeCountByType(Post::class);
+$user->getTotalLikeCount();
+
+// Likeable
+// To avoid the n+1 issue, please make sure to include `with('likeableCounter')` when using `likes_count`
+$post = Post::with('likeableCounter')->find(1);
+$post->likes_count;
+
+$result = Post::with('likeableCounter')->get();
+$result->first()->likes_count;
+```
