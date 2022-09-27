@@ -52,7 +52,7 @@ trait Likeable
     {
         if ($userableNamespace) {
             return Like::query()
-                ->where('likeable_type', get_class($this))
+                ->where('likeable_type', $this->getMorphClass())
                 ->where('likeable_id', $this->getKey())
                 ->where('userable_type', $userableNamespace)
                 ->get()
@@ -60,7 +60,7 @@ trait Likeable
         }
 
         return Like::select('userable_type')
-            ->where('likeable_type', get_class($this))
+            ->where('likeable_type', $this->getMorphClass())
             ->where('likeable_id', $this->getKey())
             ->groupBy('userable_type')
             ->pluck('userable_type')
@@ -68,7 +68,7 @@ trait Likeable
                 $key = Str::afterLast($userableType, '\\');
 
                 $result = Like::with('userable')
-                    ->where('likeable_type', get_class($this))
+                    ->where('likeable_type', $this->getMorphClass())
                     ->where('likeable_id', $this->getKey())
                     ->where('userable_type', $userableType)
                     ->get()

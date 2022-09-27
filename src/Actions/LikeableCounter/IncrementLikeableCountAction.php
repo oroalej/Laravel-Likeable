@@ -12,7 +12,7 @@ class IncrementLikeableCountAction
         /** @var LikeableCounter $item */
         $item = LikeableCounter::query()
             ->firstOrNew([
-                'likeable_type' => get_class($likeable),
+                'likeable_type' => $likeable->getMorphClass(),
                 'likeable_id'   => $likeable->getKey()
             ]);
 

@@ -10,12 +10,4 @@ class LikeableServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom(__DIR__."/../database/migrations");
     }
-
-    public function getMigrationFileName($migrationFileName): string
-    {
-        $path              = database_path() . DIRECTORY_SEPARATOR . 'migrations' . DIRECTORY_SEPARATOR;
-        $migrationFileName = date('Y_m_d_His') . '_' . $migrationFileName;
-
-        return $path . $migrationFileName;
-    }
 }

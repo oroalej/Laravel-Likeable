@@ -11,9 +11,9 @@ class IncrementLikerCountAction
     {
         /** @var LikerCounter $item */
         $item = LikerCounter::query()->firstOrNew([
-            'likeable_type' => get_class($likeable),
-            'userable_type'     => get_class($userable),
-            'userable_id'       => $userable->getKey()
+            'userable_type'     => $userable->getMorphClass(),
+            'userable_id'       => $userable->getKey(),
+            'likeable_type' => $likeable->getMorphClass()
         ]);
 
         $item->count++;

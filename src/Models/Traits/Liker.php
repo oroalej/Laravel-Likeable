@@ -56,7 +56,7 @@ trait Liker
     {
         if ($modelNamespace) {
             return Like::with('likeable')
-                ->where('userable_type', get_class($this))
+                ->where('userable_type', $this->getMorphClass())
                 ->where('userable_id', $this->getKey())
                 ->where('likeable_type', $modelNamespace)
                 ->get()
@@ -64,12 +64,12 @@ trait Liker
         }
 
         $result = Like::with('likeable')
-            ->where('userable_type', get_class($this))
+            ->where('userable_type', $this->getMorphClass())
             ->where('userable_id', $this->getKey())
             ->get();
 
         return Like::select('likeable_type')
-            ->where('userable_type', get_class($this))
+            ->where('userable_type', $this->getMorphClass())
             ->where('userable_id', $this->getKey())
             ->groupBy('likeable_type')
             ->pluck('likeable_type')

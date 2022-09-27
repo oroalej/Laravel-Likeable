@@ -11,9 +11,9 @@ class DecrementLikerCountAction
     {
         /** @var LikerCounter $item */
         $item = LikerCounter::query()
-            ->where('likeable_type', get_class($likeable))
-            ->where('userable_type', get_class($userable))
+            ->where('userable_type', $userable->getMorphClass())
             ->where('userable_id', $userable->getKey())
+            ->where('likeable_type', $likeable->getMorphClass())
             ->first();
 
         if ($item) {
